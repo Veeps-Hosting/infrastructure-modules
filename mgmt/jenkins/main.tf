@@ -63,11 +63,11 @@ module "jenkins" {
   acm_cert_domain_name = "${var.acm_ssl_certificate_domain}"
 
   allow_incoming_http_from_cidr_blocks        = []
-  allow_incoming_http_from_security_group_ids = ["${data.terraform_remote_state.openvpn_server.security_group_id}"]
+  allow_incoming_http_from_security_group_ids = ["${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"]
 
   key_pair_name                     = "${var.keypair_name}"
   allow_ssh_from_cidr_blocks        = []
-  allow_ssh_from_security_group_ids = ["${data.terraform_remote_state.openvpn_server.security_group_id}"]
+  allow_ssh_from_security_group_ids = ["${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"]
 
   root_block_device_volume_type = "gp2"
   root_block_device_volume_size = "${var.root_volume_size}"
@@ -307,13 +307,13 @@ data "terraform_remote_state" "vpc" {
   }
 }
 
-data "terraform_remote_state" "openvpn_server" {
+data "terraform_remote_state" "bastion_host" {
   backend = "s3"
 
   config {
     region = "${var.terraform_state_aws_region}"
     bucket = "${var.terraform_state_s3_bucket}"
-    key    = "${var.aws_region}/${var.vpc_name}/openvpn-server/terraform.tfstate"
+    key    = "${var.aws_region}/${var.vpc_name}/bastion-host/terraform.tfstate"
   }
 }
 

@@ -119,7 +119,7 @@ resource "aws_security_group" "lc_security_group" {
     from_port       = 22
     to_port         = 22
     protocol        = "tcp"
-    security_groups = ["${data.terraform_remote_state.openvpn_server.security_group_id}"]
+    security_groups = ["${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"]
   }
 
   # aws_launch_configuration.launch_configuration in this module sets create_before_destroy to true, which means
@@ -370,13 +370,13 @@ data "terraform_remote_state" "vpc" {
   }
 }
 
-data "terraform_remote_state" "openvpn_server" {
+data "terraform_remote_state" "bastion_host" {
   backend = "s3"
 
   config {
     region = "${var.terraform_state_aws_region}"
     bucket = "${var.terraform_state_s3_bucket}"
-    key    = "${var.aws_region}/mgmt/openvpn-server/terraform.tfstate"
+    key    = "${var.aws_region}/mgmt/bastion-host/terraform.tfstate"
   }
 }
 

@@ -50,7 +50,7 @@ module "alb" {
   # and then a split to turn it back into a list. More info: https://github.com/hashicorp/terraform/issues/12453
   allow_inbound_from_cidr_blocks = ["${compact(split(",", var.is_internal_alb ? join(",", concat(var.allow_inbound_from_cidr_blocks, list(data.terraform_remote_state.vpc.vpc_cidr_block))) : join(",", var.allow_inbound_from_cidr_blocks)))}"]
 
-  allow_inbound_from_security_group_ids = ["${data.terraform_remote_state.openvpn_server.security_group_id}"]
+  allow_inbound_from_security_group_ids = ["${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"]
 
   vpc_id = "${data.terraform_remote_state.vpc.vpc_id}"
 
@@ -119,13 +119,13 @@ data "terraform_remote_state" "vpc" {
   }
 }
 
-data "terraform_remote_state" "openvpn_server" {
+data "terraform_remote_state" "bastion_host" {
   backend = "s3"
 
   config {
     region = "${var.terraform_state_aws_region}"
     bucket = "${var.terraform_state_s3_bucket}"
-    key    = "${var.aws_region}/mgmt/openvpn-server/terraform.tfstate"
+    key    = "${var.aws_region}/mgmt/bastion-host/terraform.tfstate"
   }
 }
 

@@ -105,8 +105,8 @@ variable "storage_encrypted" {
   default     = false
 }
 
-variable "allow_connections_from_openvpn_server" {
-  description = "Allow connections from the OpenVPN Server. This can be enabled so developers can connect to the DB from their local computers. Generally, this is not recommended in prod."
+variable "allow_connections_from_bastion_host" {
+  description = "Allow connections from the bastion host. This can be enabled so developers can connect to the DB from their local computers via SSH tunneling. Generally, this is not recommended in prod."
 }
 
 variable "engine" {

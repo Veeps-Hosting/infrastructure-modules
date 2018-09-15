@@ -1,7 +1,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# LAUNCH AN OPENVPN SERVER
-# The OpenVPN Server is the sole point of entry to the network. This way, we can make all other servers inaccessible
-# from the public Internet and focus our efforts on locking down the OpenVPN Server.
+# LAUNCH THE BASTION HOST
+# The bastion host is the sole point of entry to the network. This way, we can make all other servers inaccessible from
+# the public Internet and focus our efforts on locking down the bastion host.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -30,88 +30,41 @@ terraform {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# LAUNCH THE OPENVPN SERVER
+# LAUNCH THE BASTION HOST
 # ---------------------------------------------------------------------------------------------------------------------
 
-module "openvpn" {
-  source = "git::git@github.com:gruntwork-io/module-openvpn.git//modules/openvpn-server?ref=v0.7.1"
+module "bastion" {
+  source = "git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=v0.5.0"
 
-  aws_region     = "${var.aws_region}"
-  aws_account_id = "${var.aws_account_id}"
-
-  name = "${var.name}"
-
+  name          = "${var.name}"
   instance_type = "${var.instance_type}"
   ami           = "${var.ami}"
   user_data     = "${data.template_file.user_data.rendered}"
+  tenancy       = "${var.tenancy}"
 
-  request_queue_name    = "${var.request_queue_name}"
-  revocation_queue_name = "${var.revocation_queue_name}"
+  vpc_id    = "${data.terraform_remote_state.vpc.vpc_id}"
+  subnet_id = "${element(data.terraform_remote_state.vpc.public_subnet_ids, 0)}"
 
-  keypair_name       = "${var.keypair_name}"
-  kms_key_arn        = "${data.terraform_remote_state.kms_master_key.key_arn}"
-  backup_bucket_name = "${var.backup_bucket_name}"
-
-  vpc_id    = "${data.terraform_remote_state.mgmt_vpc.vpc_id}"
-  subnet_id = "${element(data.terraform_remote_state.mgmt_vpc.public_subnet_ids, 0)}"
-
-  allow_ssh_from_cidr      = true
+  keypair_name             = "${var.keypair_name}"
   allow_ssh_from_cidr_list = ["${var.allow_ssh_from_cidr_list}"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ASSEMBLE A LIST OF IP ADDRESS RANGES THAT WILL BE ROUTED OVER VPN
-# We add the CIDR blocks of all the VPCs here so that all requests to VPC IP addresses are routed over VPN.
-# ---------------------------------------------------------------------------------------------------------------------
-
-data "template_file" "vpn_routes" {
-  count    = "${length(data.template_file.all_vpc_cidr_blocks.*.rendered)}"
-  template = "${cidrhost(element(data.template_file.all_vpc_cidr_blocks.*.rendered, count.index), 0)} ${cidrnetmask(element(data.template_file.all_vpc_cidr_blocks.*.rendered, count.index))}"
-}
-
-data "template_file" "all_vpc_cidr_blocks" {
-  count    = "${length(data.terraform_remote_state.other_vpcs.*.vpc_cidr_block) + 1}"
-  template = "${element(concat(data.terraform_remote_state.other_vpcs.*.vpc_cidr_block, list(data.terraform_remote_state.mgmt_vpc.vpc_cidr_block)), count.index)}"
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# THE USER DATA SCRIPT THAT WILL WILL RUN ON THE OPENVPN SERVER DURING BOOT
+# THE USER DATA SCRIPT THAT WILL WILL RUN ON THE BASTION HOST DURING BOOT
 # ---------------------------------------------------------------------------------------------------------------------
 
 data "template_file" "user_data" {
   template = "${file("${path.module}/user-data/user-data.sh")}"
 
   vars {
-    backup_bucket_name = "${module.openvpn.backup_bucket_name}"
-    kms_key_id         = "${data.terraform_remote_state.kms_master_key.key_id}"
-
-    key_size             = 4096
-    ca_expiration_days   = 3650
-    cert_expiration_days = 3650
-
-    ca_country  = "${var.ca_country}"
-    ca_state    = "${var.ca_state}"
-    ca_locality = "${var.ca_locality}"
-    ca_org      = "${var.ca_org}"
-    ca_org_unit = "${var.ca_org_unit}"
-    ca_email    = "${var.ca_email}"
-
-    eip_id = "${module.openvpn.elastic_ip}"
-
-    request_queue_url    = "${module.openvpn.client_request_queue}"
-    revocation_queue_url = "${module.openvpn.client_revocation_queue}"
-    queue_region         = "${var.aws_region}"
-
-    vpn_subnet     = "${var.vpn_subnet}"
-    routes         = "${join(" ", formatlist("\"%s\"", data.template_file.vpn_routes.*.rendered))}"
-    vpc_name       = "${data.terraform_remote_state.mgmt_vpc.vpc_name}"
+    vpc_name       = "${data.terraform_remote_state.vpc.vpc_name}"
     log_group_name = "${var.name}"
   }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
 # GIVE SSH-GRUNT PERMISSIONS TO TALK TO IAM
-# We add an IAM policy to our OpenVPN Server that allows ssh-grunt to make API calls to IAM to fetch IAM user and group
+# We add an IAM policy to our bastion host that allows ssh-grunt to make API calls to IAM to fetch IAM user and group
 # data.
 # ---------------------------------------------------------------------------------------------------------------------
 
@@ -127,7 +80,7 @@ module "iam_policies" {
 
 resource "aws_iam_role_policy" "ssh_grunt_permissions" {
   name   = "ssh-grunt-permissions"
-  role   = "${module.openvpn.iam_role_id}"
+  role   = "${module.bastion.iam_role_id}"
   policy = "${module.iam_policies.ssh_grunt_permissions}"
 }
 
@@ -142,7 +95,7 @@ module "cloudwatch_metrics" {
 
 resource "aws_iam_policy_attachment" "attach_cloudwatch_metrics_policy" {
   name       = "attach-cloudwatch-metrics-policy"
-  roles      = ["${module.openvpn.iam_role_id}"]
+  roles      = ["${module.bastion.iam_role_id}"]
   policy_arn = "${module.cloudwatch_metrics.cloudwatch_metrics_policy_arn}"
 }
 
@@ -157,32 +110,32 @@ module "cloudwatch_log_aggregation" {
 
 resource "aws_iam_policy_attachment" "attach_cloudwatch_log_aggregation_policy" {
   name       = "attach-cloudwatch-log-aggregation-policy"
-  roles      = ["${module.openvpn.iam_role_id}"]
+  roles      = ["${module.bastion.iam_role_id}"]
   policy_arn = "${module.cloudwatch_log_aggregation.cloudwatch_log_aggregation_policy_arn}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ADD CLOUDWATCH ALARMS THAT GO OFF IF THE OPENVPN SERVER'S CPU, MEMORY, OR DISK USAGE GET TOO HIGH
+# ADD CLOUDWATCH ALARMS THAT GO OFF IF THE BASTION HOST'S CPU, MEMORY, OR DISK USAGE GET TOO HIGH
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "high_cpu_usage_alarms" {
-  source               = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/alarms/asg-cpu-alarms?ref=v0.9.1"
-  asg_names            = ["${module.openvpn.autoscaling_group_id}"]
-  num_asg_names        = 1
+  source               = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/alarms/ec2-cpu-alarms?ref=v0.9.1"
+  instance_ids         = ["${module.bastion.id}"]
+  instance_count       = 1
   alarm_sns_topic_arns = ["${data.terraform_remote_state.sns_region.arn}"]
 }
 
 module "high_memory_usage_alarms" {
-  source               = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/alarms/asg-memory-alarms?ref=v0.9.1"
-  asg_names            = ["${module.openvpn.autoscaling_group_id}"]
-  num_asg_names        = 1
+  source               = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/alarms/ec2-memory-alarms?ref=v0.9.1"
+  instance_ids         = ["${module.bastion.id}"]
+  instance_count       = 1
   alarm_sns_topic_arns = ["${data.terraform_remote_state.sns_region.arn}"]
 }
 
 module "high_disk_usage_alarms" {
-  source               = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/alarms/asg-disk-alarms?ref=v0.9.1"
-  asg_names            = ["${module.openvpn.autoscaling_group_id}"]
-  num_asg_names        = 1
+  source               = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/alarms/ec2-disk-alarms?ref=v0.9.1"
+  instance_ids         = ["${module.bastion.id}"]
+  instance_count       = 1
   file_system          = "/dev/xvda1"
   mount_path           = "/"
   alarm_sns_topic_arns = ["${data.terraform_remote_state.sns_region.arn}"]
@@ -194,13 +147,12 @@ module "high_disk_usage_alarms" {
 # like foo.your-company.com.
 # ---------------------------------------------------------------------------------------------------------------------
 
-resource "aws_route53_record" "openvpn" {
-  count   = "${var.create_route53_entry}"
-  zone_id = "${element(concat(data.terraform_remote_state.route53_public.*.primary_domain_hosted_zone_id, list("")), 0)}"
+resource "aws_route53_record" "bastion_host" {
+  zone_id = "${data.terraform_remote_state.route53_public.primary_domain_hosted_zone_id}"
   name    = "${var.domain_name}"
   type    = "A"
   ttl     = "300"
-  records = ["${module.openvpn.public_ip}"]
+  records = ["${module.bastion.public_ip}"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -209,35 +161,13 @@ resource "aws_route53_record" "openvpn" {
 # bucket using remote state storage.
 # ---------------------------------------------------------------------------------------------------------------------
 
-data "terraform_remote_state" "mgmt_vpc" {
+data "terraform_remote_state" "vpc" {
   backend = "s3"
 
   config {
     region = "${var.terraform_state_aws_region}"
     bucket = "${var.terraform_state_s3_bucket}"
-    key    = "${var.aws_region}/${var.current_vpc_name}/vpc/terraform.tfstate"
-  }
-}
-
-data "terraform_remote_state" "other_vpcs" {
-  count = "${length(var.other_vpc_names)}"
-
-  backend = "s3"
-
-  config {
-    region = "${var.terraform_state_aws_region}"
-    bucket = "${var.terraform_state_s3_bucket}"
-    key    = "${var.aws_region}/${element(var.other_vpc_names, count.index)}/vpc/terraform.tfstate"
-  }
-}
-
-data "terraform_remote_state" "kms_master_key" {
-  backend = "s3"
-
-  config {
-    region = "${var.terraform_state_aws_region}"
-    bucket = "${var.terraform_state_s3_bucket}"
-    key    = "${var.aws_region}/mgmt/kms-master-key/terraform.tfstate"
+    key    = "${var.aws_region}/${var.vpc_name}/vpc/terraform.tfstate"
   }
 }
 
@@ -252,7 +182,6 @@ data "terraform_remote_state" "sns_region" {
 }
 
 data "terraform_remote_state" "route53_public" {
-  count   = "${var.create_route53_entry}"
   backend = "s3"
 
   config {

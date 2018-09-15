@@ -4,8 +4,8 @@
     "github_auth_token": "{{env `GITHUB_OAUTH_TOKEN`}}"
   },
   "builders": [{
-    "ami_name": "openvpn-server-{{isotime | clean_ami_name}}",
-    "ami_description": "OpenVPN Server built on Ubuntu 16.04.",
+    "ami_name": "bastion-host-{{isotime | clean_ami_name}}",
+    "ami_description": "An Ubuntu AMI that is meant to be run as a bastion host.",
     "instance_type": "t2.micro",
     "region": "{{user `aws_region`}}",
     "type": "amazon-ebs",
@@ -25,23 +25,12 @@
   }],
   "provisioners": [{
     "type": "shell",
-    "pause_before": "30s",
-    "inline": [
-      "sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade"
-    ]
-  },{
-    "type": "shell",
     "inline": "curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/master/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version v0.0.21"
   },{
     "type": "shell",
+    "pause_before": "30s",
     "inline": [
       "gruntwork-install --module-name 'bash-commons' --tag 'v0.0.4' --repo https://github.com/gruntwork-io/bash-commons",
-      "gruntwork-install --module-name 'install-openvpn' --tag 'v0.7.1' --repo https://github.com/gruntwork-io/package-openvpn",
-      "gruntwork-install --module-name 'init-openvpn' --tag 'v0.7.1' --repo https://github.com/gruntwork-io/package-openvpn",
-      "gruntwork-install --module-name 'start-openvpn-admin' --tag 'v0.7.1' --repo https://github.com/gruntwork-io/package-openvpn",
-      "gruntwork-install --module-name 'backup-openvpn-pki' --tag 'v0.7.1' --repo https://github.com/gruntwork-io/package-openvpn",
-      "gruntwork-install --binary-name 'openvpn-admin' --tag 'v0.7.1' --repo https://github.com/gruntwork-io/package-openvpn",
-      "sudo /usr/local/bin/install-openvpn",
       "gruntwork-install --module-name 'auto-update' --tag 'v0.15.1' --repo https://github.com/gruntwork-io/module-security",
       "gruntwork-install --module-name 'fail2ban' --tag 'v0.15.1' --repo https://github.com/gruntwork-io/module-security",
       "gruntwork-install --module-name 'ntp' --tag 'v0.15.1' --repo https://github.com/gruntwork-io/module-security",

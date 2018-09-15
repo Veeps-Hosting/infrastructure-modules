@@ -44,11 +44,10 @@ module "database" {
   master_password = "${var.master_password}"
 
   # Run in the private persistence subnets and only allow incoming connections from the private app subnets
-  vpc_id                             = "${data.terraform_remote_state.vpc.vpc_id}"
-  subnet_ids                         = ["${data.terraform_remote_state.vpc.private_persistence_subnet_ids}"]
-  allow_connections_from_cidr_blocks = ["${data.terraform_remote_state.vpc.private_app_subnet_cidr_blocks}"]
-
-  allow_connections_from_security_groups = "${compact(list(var.allow_connections_from_openvpn_server ? data.terraform_remote_state.openvpn_server.security_group_id : ""))}"
+  vpc_id                                 = "${data.terraform_remote_state.vpc.vpc_id}"
+  subnet_ids                             = ["${data.terraform_remote_state.vpc.private_persistence_subnet_ids}"]
+  allow_connections_from_cidr_blocks     = ["${data.terraform_remote_state.vpc.private_app_subnet_cidr_blocks}"]
+  allow_connections_from_security_groups = "${compact(list(var.allow_connections_from_bastion_host ? data.terraform_remote_state.bastion_host.bastion_host_security_group_id : ""))}"
 
   storage_encrypted = "${var.storage_encrypted}"
   kms_key_arn       = "${data.terraform_remote_state.kms_master_key.key_arn}"
@@ -97,13 +96,13 @@ data "terraform_remote_state" "vpc" {
   }
 }
 
-data "terraform_remote_state" "openvpn_server" {
+data "terraform_remote_state" "bastion_host" {
   backend = "s3"
 
   config {
     region = "${var.terraform_state_aws_region}"
     bucket = "${var.terraform_state_s3_bucket}"
-    key    = "${var.aws_region}/mgmt/openvpn-server/terraform.tfstate"
+    key    = "${var.aws_region}/mgmt/bastion-host/terraform.tfstate"
   }
 }
 

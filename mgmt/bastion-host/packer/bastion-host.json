@@ -6,14 +6,14 @@
   "builders": [{
     "ami_name": "bastion-host-{{isotime | clean_ami_name}}",
     "ami_description": "An Ubuntu AMI that is meant to be run as a bastion host.",
-    "instance_type": "t2.micro",
+    "instance_type": "t3.micro",
     "region": "{{user `aws_region`}}",
     "type": "amazon-ebs",
     "source_ami_filter": {
       "filters": {
         "virtualization-type": "hvm",
         "architecture": "x86_64",
-        "name": "*ubuntu-xenial-16.04-amd64-server-*",
+        "name": "*ubuntu-xenial-18.04-amd64-server-*",
         "block-device-mapping.volume-type": "gp2",
         "root-device-type": "ebs"
       },
@@ -30,7 +30,7 @@
     "type": "shell",
     "pause_before": "30s",
     "inline": [
-      "gruntwork-install --module-name 'bash-commons' --tag 'v0.0.4' --repo https://github.com/gruntwork-io/bash-commons",
+      "gruntwork-install --module-name 'bash-commons' --tag 'v0.0.6' --repo https://github.com/gruntwork-io/bash-commons",
       "gruntwork-install --module-name 'auto-update' --tag 'v0.15.1' --repo https://github.com/gruntwork-io/module-security",
       "gruntwork-install --module-name 'fail2ban' --tag 'v0.15.1' --repo https://github.com/gruntwork-io/module-security",
       "gruntwork-install --module-name 'ntp' --tag 'v0.15.1' --repo https://github.com/gruntwork-io/module-security",

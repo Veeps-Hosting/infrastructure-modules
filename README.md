@@ -45,7 +45,7 @@ input variables of that module:
 # Use Terragrunt to download the module code
 terragrunt = {
   terraform {
-    source = "git::ssh://git@github.com/Veeps-Hosting/infrastructure-modules.git//path/to/module?ref=v0.0.1"
+    source = "git::ssh://git@github.com/Veeps-Hosting/infrastructure-modules.git//path/to/module?ref=master"
   }
 }
 
@@ -65,7 +65,7 @@ folder:
 ```
 > terragrunt apply
 [terragrunt] Reading Terragrunt config file at terraform.tfvars
-[terragrunt] Downloading Terraform configurations from git::ssh://git@github.com/Veeps-Hosting/infrastructure-modules.git//path/to/module?ref=v0.0.1
+[terragrunt] Downloading Terraform configurations from git::ssh://git@github.com/Veeps-Hosting/infrastructure-modules.git//path/to/module?ref=master
 [terragrunt] Copying files from . into /tmp/terragrunt/infrastructure-modules/path/to/module
 [terragrunt] Running command: terraform apply
 [...]

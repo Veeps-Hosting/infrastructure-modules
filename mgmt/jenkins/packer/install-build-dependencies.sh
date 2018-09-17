@@ -3,7 +3,7 @@
 
 set -e
 
-readonly TERRAFORM_VERSION="0.11.7"
+readonly TERRAFORM_VERSION="0.11.8"
 readonly TERRAGRUNT_VERSION="v0.16.7"
 readonly PACKER_VERSION="1.0.0"
 readonly DOCKER_VERSION="17.03.1~ce-0~ubuntu-xenial"

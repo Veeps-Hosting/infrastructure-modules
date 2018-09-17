@@ -30,7 +30,7 @@ terraform {
 
   # Only allow this Terraform version. Note that if you upgrade to a newer version, Terraform won't allow you to use an
   # older version, so when you upgrade, you should upgrade everyone on your team and your CI servers all at once.
-  required_version = "= 0.11.7"
+  required_version = "= 0.11.8"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "sns_topic" {
-  source                    = "git::git@github.com:gruntwork-io/package-messaging.git//modules/sns?ref=v0.1.0"
+  source                    = "git::git@github.com:gruntwork-io/package-messaging.git//modules/sns?ref=master"
   name                      = "${var.name}"
   display_name              = "${var.display_name}"
   allow_publish_accounts    = ["${var.allow_publish_accounts}"]

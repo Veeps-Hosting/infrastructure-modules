@@ -20,7 +20,7 @@ variable "instance_type" {
 }
 
 variable "ami" {
-  description = "The AMI to run on the puppetmaster. This should be built from the Packer template under packer/bastion-host.json."
+  description = "The AMI to run on the puppetmaster."
 }
 
 variable "keypair_name" {

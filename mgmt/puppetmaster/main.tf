@@ -43,8 +43,7 @@ module "puppetmaster" {
   vpc_id    = "${data.terraform_remote_state.vpc.vpc_id}"
   subnet_id = "${element(data.terraform_remote_state.vpc.public_subnet_ids, 0)}"
 
-  keypair_name                      = "${var.keypair_name}"
-  allow_ssh_from_security_group_ids = ["${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"]
+  key_name                          = "${var.key_name}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -110,20 +109,6 @@ module "high_disk_usage_alarms" {
   file_system          = "/dev/xvda1"
   mount_path           = "/"
   alarm_sns_topic_arns = ["${data.terraform_remote_state.sns_region.arn}"]
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE A DNS A RECORD FOR THE SERVER
-# Create an A Record in Route 53 pointing to the private IP of this server so you can connect to it using a nice domain name
-# like foo.your-company.com.
-# ---------------------------------------------------------------------------------------------------------------------
-
-resource "aws_route53_record" "puppetmaster_host" {
-  zone_id = "${data.terraform_remote_state.route53_public.primary_domain_hosted_zone_id}"
-  name    = "${var.domain_name}"
-  type    = "A"
-  ttl     = "300"
-  records = ["${module.puppetmaster.private_ip}"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

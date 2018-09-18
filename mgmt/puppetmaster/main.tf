@@ -13,13 +13,13 @@ module "puppetmaster" {
   keypair_name  = "${var.keypair_name}"
   source        = "git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=v0.5.0"
   subnet_id     = "${var.subnet_id}"
-  user_data     = "${data.template_file.user_data.rendered}"
+#  user_data     = "${data.template_file.user_data.rendered}"
   tags          = {
     Role = "Puppetmaster"
   }
   vpc_id        = "${var.vpc_id}"
 }
 
-data "template_file" "user_data" {
-  template = "${file("${path.module}/user-data/user-data")}"
-}
+#data "template_file" "user_data" {
+#  template = "${file("${path.module}/user-data/user-data")}"
+#}

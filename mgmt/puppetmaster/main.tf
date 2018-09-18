@@ -34,17 +34,17 @@ terraform {
 module "puppetmaster" {
   source = "git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=v0.5.0"
 
-  name          = "${var.name}"
-  instance_type = "${var.instance_type}"
-  ami           = "${var.ami}"
-  user_data     = "${data.template_file.user_data.rendered}"
-  tenancy       = "${var.tenancy}"
+#  name          = "${var.name}"
+#  instance_type = "${var.instance_type}"
+#  ami           = "${var.ami}"
+#  user_data     = "${data.template_file.user_data.rendered}"
+#  tenancy       = "${var.tenancy}"
 
-  vpc_id    = "${data.terraform_remote_state.vpc.vpc_id}"
-  subnet_id = "${element(data.terraform_remote_state.vpc.private_subnet_ids, 0)}"
+#  vpc_id    = "${data.terraform_remote_state.vpc.vpc_id}"
+#  subnet_id = "${element(data.terraform_remote_state.vpc.private_subnet_ids, 0)}"
 
-  dns_name    = "${var.dns_name}"
-  dns_zone_id = "${var.dns_zone_id}"
+#  dns_name    = "${var.dns_name}"
+#  dns_zone_id = "${var.dns_zone_id}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

@@ -1,11 +1,9 @@
-output "dns_name" {
-  value = "${aws_route53_record.puppetmaster.fqdn}"
+output "id" {
+  value = "${aws_instance.instance.id}"
 }
-
-output "puppetmaster_private_ip" {
-  value = "${module.puppetmaster.private_ip}"
+output "fqdn" {
+  value = "${join(",", aws_route53_record.instance.*.fqdn)}"
 }
-
-output "puppetmaster_security_group_id" {
-  value = "${module.puppetmaster.security_group_id}"
+output "instance_ip" {
+  value = "${aws_instance.instance.public_ip}"
 }

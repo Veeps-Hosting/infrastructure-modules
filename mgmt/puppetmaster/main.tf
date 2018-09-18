@@ -41,9 +41,10 @@ module "puppetmaster" {
   tenancy       = "${var.tenancy}"
 
   vpc_id    = "${data.terraform_remote_state.vpc.vpc_id}"
-  subnet_id = "${element(data.terraform_remote_state.vpc.public_subnet_ids, 0)}"
+  subnet_id = "${element(data.terraform_remote_state.vpc.private_subnet_ids, 0)}"
 
-  key_name                          = "${var.key_name}"
+  dns_name    = "${var.dns_name}"
+  dns_zone_id = "${var.dns_zone_id}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

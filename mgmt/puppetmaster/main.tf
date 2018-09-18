@@ -7,8 +7,8 @@ terraform {
   required_version = "= 0.11.8"
 }
 module "puppetmaster" {
-  ami = "${var.ami}"
-  instance_type = ""${var.instance_type}"
+  ami           = "${var.ami}"
+  instance_type = "${var.instance_type}"
   name          = "${var.name}"
   keypair_name  = "${var.keypair_name}"
   source        = "git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=v0.5.0"

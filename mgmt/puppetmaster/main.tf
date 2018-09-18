@@ -1,6 +1,10 @@
 provider "aws" {
-  region = "${var.aws_region}"
+  region              = "${var.aws_region}"
   allowed_account_ids = ["${var.aws_account_ids}"]
+}
+terraform {
+  backend "s3" {}
+  required_version = "= 0.11.8"
 }
 module "puppetmaster" {
   ami = "${var.ami}"

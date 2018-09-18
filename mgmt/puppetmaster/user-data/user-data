@@ -1,0 +1,61 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+write_files:
+  - path: /root/.ssh/config
+    permissions: 0400
+    content: |
+      Host git-codecommit.*.amazonaws.com
+        User APKAIZMIRXTY2CPTY6GQ
+        IdentityFile ~/.ssh/id_rsa
+  - path: /root/.ssh/id_rsa
+    permissions: 0400
+    content: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEpQIBAAKCAQEA1MYMk8Txz/9/RqxnRWjQHjFGuHMt9+l/meb/9AYL5NkL7Uts
+      r04c0XfjHVXMGK0Bo9a9MNwBCu3GjL9iTMFDCwS9xnhD/TlT7YxJsdO/mJTa7n2O
+      wB9k6a8fDXIF3t1C3fjuplf7eWXphaQhizqDMU2EccBlYCyKzuWyE5HDCPuNnf/R
+      uR5yGeoBRY2vMFZDWlUbbm/xQp48JH1y+028l83NRcCMiO4eblZxx3HtWmaD4Sm6
+      ybop2gyoFka9wO9jsixV3ta2YyGAb3tQBkXboFm4xIrVDVs9teMStFqcRHlTp0DS
+      /VzAIA5NXAQIiEQvsbwauTjIe9vpJk5gjgY/UQIDAQABAoIBAQCWssLbsiSWbd5m
+      Xtsx5N9qUvpEz4ciTGXMyjhETDgGWNfCtKYAr7FnhqL79vV8EKTVttT+kwPGCsyS
+      iUaFGGh0mGIU/L8izYSs/ayAX3oXBm7ddV4yosmlXRwAON8BjvK6JoJYnH4G6HBx
+      7+K2KrYaqE2DB4KFkGarzTHH/HgHll/gp5AlA7f2SkEKmoe+cnHRtHk7q/qGl94k
+      96rD78bBEiKbfB3KdmEdX0ZBnz/gQ6ZGaVo01d7at6P1IkObxDz8T7Lh8+Mgrpp5
+      giaORBNpwDlkBxQUbUGS/H0KweuYQAijd8h7aV6gluc7DIjmLNl/0nwVfJf6zTie
+      +R+kVftxAoGBAPiHu5qaXQ4auUAkPUQebonPbDTftoVtzNadDFl49dDeevDT7kS+
+      RRtHYdL/BBKEO68rJh2P5YJyarYsWcgZmzzzQZje24LHlyMmfI4HRCN7JZrW0m4I
+      Jhf2OP0Z5Mx9BN+ayfs3+gd/ISwk/XgDpKZslc5HB+t0b9JpqpOUaNJ9AoGBANsr
+      Mb2M6s318hxXdZxow2qm7lVc7oVKvJmjRcuszsJLX3LYxori+dLbVCVa2ZS1LYkw
+      1EBl73tOsKZ9Jc/YvCL+DSnIuFLWToBW2fiOT4vevj1DwrzDP82ICZucX8r9sCf8
+      SpEi88E3TpAIVF43H+vbQ1H6XQsSyblRqZrVakRlAoGBAOgrrKc+AyZU8rAn6pAD
+      OdJF0lkGkHTPYScwKURASqsn24O1CAZyFQ7pvUol74D4xOTcE0xUi9wz1NqAThMv
+      UKU8vg/4SOpAWEF/B6aKxS28MiIXAxfFRwjlfNF86g/Zzr6w1HV6EnoEWlHp8Fu4
+      U40hLUU5d/2OlZPkIHSjlNTlAoGBAJBEyqU/kYCqGQlW+PBQdfJKmDBQ0CGlpKht
+      tY/w3NlAzD/JOkhKSLDn92fvebJN4P+hyNXrQ80ja1zsnGtI++781KVgnxTIRTxt
+      72WSKAKmSQwDArlGvUUJ+2kXcmcov0BS7rLDEzlosqpVEVRDbRvQZWwdJgoX//mh
+      K8fkG+ORAoGATX2cnOYNya2kLmq/xP8dq8q6PkaPL67pOeInucYppuC+6QvF9EGy
+      +k9OWHRNuQeFQY7EDZdcY/GUsCmtq+9U7msVqcWrgt9JQElEMjvoB+8l7SlgaBGp
+      hQbbCuDicm0Sl+EeDGuC1KSjibqMfrn9ETEYInIP0+hJFBhfUfecuc4=
+      -----END RSA PRIVATE KEY-----
+  - path: /root/.ssh/id_rsa.pub
+    permissions: 0400
+    content: |
+      ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUxgyTxPHP/39GrGdFaNAeMUa4cy336X+Z5v/0Bgvk2QvtS2yvThzRd+MdVcwYrQGj1r0w3AEK7caMv2JMwUMLBL3GeEP9OVPtjEmx07+YlNrufY7AH2Tprx8NcgXe3ULd+O6mV/t5ZemFpCGLOoMxTYRxwGVgLIrO5bITkcMI+42d/9G5HnIZ6gFFja8wVkNaVRtub/FCnjwkfXL7TbyXzc1FwIyI7h5uVnHHce1aZoPhKbrJuinaDKgWRr3A72OyLFXe1rZjIYBve1AGRdugWbjEitUNWz214xK0WpxEeVOnQNL9XMAgDk1cBAiIRC+xvBq5OMh72+kmTmCOBj9R
+packages:
+ - git
+ - wget
+runcmd:
+ - 'wget https://apt.puppetlabs.com/puppet5-release-bionic.deb'
+ - 'dpkg -i puppet5-release-bionic.deb'
+ - 'rm -f puppet5-release-bionic.deb'
+ - 'apt update'
+ - 'apt install -y puppet-agent'
+ - 'rm -fr /etc/puppetlabs/code/environments/production'
+ - 'GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" git clone ssh://git-codecommit.ap-southeast-2.amazonaws.com/v1/repos/veepshosting_propertyiq_iac /etc/puppetlabs/code/environments/production'
+ - '/opt/puppetlabs/bin/puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'
+ - '/opt/puppetlabs/bin/puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'
+ - '/opt/puppetlabs/bin/puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'
+ - '/usr/bin/unattended-upgrades -d'
+final_message: "The system is up after $UPTIME seconds"

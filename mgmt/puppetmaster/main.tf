@@ -43,8 +43,7 @@ module "puppetmaster" {
   vpc_id    = "${data.terraform_remote_state.vpc.vpc_id}"
   subnet_id = "${element(data.terraform_remote_state.vpc.public_subnet_ids, 0)}"
 
-  key_pair_name                     = "${var.keypair_name}"
-  allow_ssh_from_cidr_blocks        = []
+  keypair_name                      = "${var.keypair_name}"
   allow_ssh_from_security_group_ids = ["${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"]
 }
 

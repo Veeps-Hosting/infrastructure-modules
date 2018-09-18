@@ -20,6 +20,10 @@ variable "aws_account_ids" {
   type = "list"
 }
 
+variable "instance_type" {
+  description = "Instance type, recommended minimum t2.medium"
+}
+
 variable "keypair_name" {
   description = "The AWS EC2 Keypair name for root access to the puppet master."
 }

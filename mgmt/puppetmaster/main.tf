@@ -18,7 +18,7 @@ module "puppetmaster" {
   instance_type                         = "${var.instance_type}"
   name                                  = "${var.name}"
   keypair_name                          = "${var.keypair_name}"
-  source                                = "git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=v0.5.0"
+  source                                = "git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=HEAD"
   subnet_id                             = "${var.subnet_id}"
   user_data                             = "${data.template_file.user_data.rendered}"
   tags                                  = {
@@ -45,6 +45,15 @@ resource "aws_iam_policy_attachment" "attach_cloudwatch_metrics_policy" {
   name       = "attach-cloudwatch-metrics-policy"
   roles      = ["${module.puppetmaster.iam_role_id}"]
   policy_arn = "${module.cloudwatch_metrics.cloudwatch_metrics_policy_arn}"
+}
+module "cloudwatch_log_aggregation" {
+  source      = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/logs/cloudwatch-log-aggregation-iam-policy?ref=HEAD"
+  name_prefix = "${var.name}"
+}
+resource "aws_iam_policy_attachment" "attach_cloudwatch_log_aggregation_policy" {
+  name       = "attach-cloudwatch-log-aggregation-policy"
+  roles      = ["${module.puppetmaster.iam_role_id}"]
+  policy_arn = "${module.cloudwatch_log_aggregation.cloudwatch_log_aggregation_policy_arn}"
 }
 resource "aws_security_group_rule" "puppet" {
   type = "ingress"

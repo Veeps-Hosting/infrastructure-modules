@@ -21,7 +21,7 @@ module "puppetmaster" {
   name                                  = "${var.name}"
   keypair_name                          = "${var.keypair_name}"
   source                                = "git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=v0.5.0"
-  source                                = "./bastion-host"
+  source                                = "../bastion-host"
   subnet_id                             = "${var.subnet_id}"
   user_data                             = "${data.template_file.user_data.rendered}"
   tags                                  = {

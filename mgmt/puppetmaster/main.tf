@@ -10,7 +10,7 @@ data "template_file" "user_data" {
   template = "${file("${path.module}/user-data/user-data.txt")}"
 }
 module "puppetmaster" {
-  allow_inbound_ssh_from_security_group = ["${data.terraform_remote_state.bastion-host.bastion_host_security_group_id}"]
+  #allow_inbound_ssh_from_security_group = ["${data.terraform_remote_state.bastion-host.bastion_host_security_group_id}"]
   ami                                   = "${var.ami}"
   instance_type                         = "${var.instance_type}"
   name                                  = "${var.name}"
@@ -22,4 +22,12 @@ module "puppetmaster" {
     Role                                = "Puppetmaster"
   }
   vpc_id                                = "${var.vpc_id}"
+}
+resource "aws_security_group_rule" "allow_puppet" {
+  type = "ingress"
+  from_port = 8140
+  to_port = 8140
+  protocol = "tcp"
+  cidr_blocks = ["10.0.0.0/8","172.31.0.0/16"]
+  security_group_id = "${module.jenkins.security_group_id}"
 }

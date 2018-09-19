@@ -10,7 +10,7 @@ data "template_file" "user_data" {
   template = "${file("${path.module}/user-data/user-data.txt")}"
 }
 module "puppetmaster" {
-  allow_ssh_from_security_group_id      = "${module.bastion.security_group_id}"
+  allow_ssh_from_security_group_id      = "${module.bastion-host.security_group_id}"
   allow_ssh_from_cidr                   = false
   allow_ssh_from_security_group         = true
   #allow_ssh_from_security_group_id      = "sg-0f62a35785364a066"
@@ -19,7 +19,7 @@ module "puppetmaster" {
   instance_type                         = "${var.instance_type}"
   name                                  = "${var.name}"
   keypair_name                          = "${var.keypair_name}"
-  source                                = ["git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=v0.5.0","../bastion-host"]
+  source                                = "git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=v0.5.0"
   subnet_id                             = "${var.subnet_id}"
   user_data                             = "${data.template_file.user_data.rendered}"
   tags                                  = {

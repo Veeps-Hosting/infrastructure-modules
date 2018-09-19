@@ -10,7 +10,7 @@ data "template_file" "user_data" {
   template = "${file("${path.module}/user-data/user-data.txt")}"
 }
 module "puppetmaster" {
-  allow_ssh_from_security_group_id      = "${var.bastion_host_security_group_id}"
+  #allow_ssh_from_security_group_id      = "${var.bastion_host_security_group_id}"
   ami                                   = "${var.ami}"
   attach_eip                            = false
   instance_type                         = "${var.instance_type}"

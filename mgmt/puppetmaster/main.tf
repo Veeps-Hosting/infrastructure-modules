@@ -55,6 +55,19 @@ resource "aws_iam_policy_attachment" "attach_cloudwatch_log_aggregation_policy" 
   roles      = ["${module.puppetmaster.iam_role_id}"]
   policy_arn = "${module.cloudwatch_log_aggregation.cloudwatch_log_aggregation_policy_arn}"
 }
+
+module "jenkins_backup" {
+  source = "git::git@github.com:gruntwork-io/module-ci.git//modules/ec2-backup?ref=HEAD"
+  instance_name = "${module.puppetmaster.name}"
+  backup_job_schedule_expression = "${var.backup_schedule_expression}"
+  backup_job_alarm_period        = "${var.backup_job_alarm_period}"
+  delete_older_than = 15
+  require_at_least  = 15
+  cloudwatch_metric_name      = "${var.backup_job_metric_namespace}"
+  cloudwatch_metric_namespace = "${var.backup_job_metric_name}"
+  alarm_sns_topic_arns = ["${data.terraform_remote_state.sns_region.arn}"]
+}
+
 resource "aws_security_group_rule" "puppet" {
   type = "ingress"
   from_port = 8140

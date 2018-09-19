@@ -15,9 +15,8 @@ variable "aws_region" {
   description = "The AWS region in which all resources will be created"
 }
 
-variable "aws_account_ids" {
-  description = "A list of AWS Account IDs. Only these IDs may be operated on by this template. The first account ID in the list will be used to identify where the VPC Peering Connection should be created. This should be the account ID in which all resources are to be created."
-  type = "list"
+variable "aws_account_id" {
+  description = "The ID of the AWS Account in which to create resources."
 }
 
 variable "instance_type" {

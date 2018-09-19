@@ -1,14 +1,21 @@
+# Configure upstream provider
 provider "aws" {
   region              = "${var.aws_region}"
   allowed_account_ids = ["${var.aws_account_id}"]
 }
+
+# Configure Terraform backend and version
 terraform {
   backend "s3" {}
   required_version = "= 0.11.8"
 }
+
+# Specify "Cloud-init" or "User-data" to Bootstrap the instance
 data "template_file" "user_data" {
   template = "${file("${path.module}/user-data/user-data.txt")}"
 }
+
+# Configure the Server
 module "puppetmaster" {
   allow_ssh_from_cidr                   = false
   allow_ssh_from_security_group         = true
@@ -26,9 +33,21 @@ module "puppetmaster" {
   }
   vpc_id                                = "${var.vpc_id}"
 }
+
+# Configure the data source used above to determine the Bastion host dynamically
+data "terraform_remote_state" "bastion_host" {
+  backend = "s3"
+  config {
+    region = "${var.terraform_state_aws_region}"
+    bucket = "${var.terraform_state_s3_bucket}"
+    key    = "${var.aws_region}/${var.vpc_name}/bastion-host/terraform.tfstate"
+  }
+}
+
+# Configure IAM permission to facilitate ssh_grunt
 module "ssh_grunt_policies" {
-  source = "git::git@github.com:gruntwork-io/module-security.git//modules/iam-policies?ref=HEAD"
-  aws_account_id = "${var.aws_account_id}"
+  source                          = "git::git@github.com:gruntwork-io/module-security.git//modules/iam-policies?ref=HEAD"
+  aws_account_id                  = "${var.aws_account_id}"
   iam_policy_should_require_mfa   = false
   trust_policy_should_require_mfa = false
 }
@@ -37,6 +56,8 @@ resource "aws_iam_role_policy" "ssh_grunt_permissions" {
   policy = "${module.ssh_grunt_policies.ssh_grunt_permissions}"
   role   = "${module.puppetmaster.iam_role_id}"
 }
+
+#Configure CloudWatch Monitoring and IAM Permissions
 module "cloudwatch_metrics" {
   source      = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/metrics/cloudwatch-custom-metrics-iam-policy?ref=HEAD"
   name_prefix = "${var.name}"
@@ -46,6 +67,8 @@ resource "aws_iam_policy_attachment" "attach_cloudwatch_metrics_policy" {
   roles      = ["${module.puppetmaster.iam_role_id}"]
   policy_arn = "${module.cloudwatch_metrics.cloudwatch_metrics_policy_arn}"
 }
+
+# Configure CloudWatch log aggregation and IAM permission
 module "cloudwatch_log_aggregation" {
   source      = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/logs/cloudwatch-log-aggregation-iam-policy?ref=HEAD"
   name_prefix = "${var.name}"
@@ -56,39 +79,35 @@ resource "aws_iam_policy_attachment" "attach_cloudwatch_log_aggregation_policy" 
   policy_arn = "${module.cloudwatch_log_aggregation.cloudwatch_log_aggregation_policy_arn}"
 }
 
-module "jenkins_backup" {
-  source = "git::git@github.com:gruntwork-io/module-ci.git//modules/ec2-backup?ref=HEAD"
-  instance_name = "${module.puppetmaster.name}"
+# Configure daily EC2 backups via Lambda with 2 week retention
+module "puppetmaster_backup" {
+  source                         = "git::git@github.com:gruntwork-io/module-ci.git//modules/ec2-backup?ref=HEAD"
+  instance_name                  = "${module.puppetmaster.name}"
   backup_job_schedule_expression = "${var.backup_schedule_expression}"
   backup_job_alarm_period        = "${var.backup_job_alarm_period}"
-  delete_older_than = 15
-  require_at_least  = 15
-  cloudwatch_metric_name      = "${var.backup_job_metric_namespace}"
-  cloudwatch_metric_namespace = "${var.backup_job_metric_name}"
-  alarm_sns_topic_arns = "${data.terraform_remote_state.sns_region.arn}"
+  delete_older_than              = 15
+  require_at_least               = 15
+  cloudwatch_metric_name         = "${var.backup_job_metric_namespace}"
+  cloudwatch_metric_namespace    = "${var.backup_job_metric_name}"
+  alarm_sns_topic_arns           = "${data.terraform_remote_state.sns_region.arn}"
 }
 
-resource "aws_security_group_rule" "puppet" {
-  type = "ingress"
-  from_port = 8140
-  to_port = 8140
-  protocol = "tcp"
-  cidr_blocks = ["10.0.0.0/8","172.31.0.0/16"]
-  security_group_id = "${module.puppetmaster.security_group_id}"
-}
-data "terraform_remote_state" "bastion_host" {
+# Configure data source used for above SNS Alarm Topic ARNs
+data "terraform_remote_state" "sns_region" {
   backend = "s3"
   config {
     region = "${var.terraform_state_aws_region}"
     bucket = "${var.terraform_state_s3_bucket}"
-    key    = "${var.aws_region}/${var.vpc_name}/bastion-host/terraform.tfstate"
+    key    = "${var.aws_region}/_global/sns-topics/terraform.tfstate"
   }
-  data "terraform_remote_state" "sns_region" {
-    backend = "s3"
-    config {
-      region = "${var.terraform_state_aws_region}"
-      bucket = "${var.terraform_state_s3_bucket}"
-      key    = "${var.aws_region}/_global/sns-topics/terraform.tfstate"
-    }
-  }
+}
+
+# Configure security group for Puppet port from Private ranges
+resource "aws_security_group_rule" "puppet" {
+  type              = "ingress"
+  from_port         = 8140
+  to_port           = 8140
+  protocol          = "tcp"
+  cidr_blocks       = ["10.0.0.0/8","172.31.0.0/16"]
+  security_group_id = "${module.puppetmaster.security_group_id}"
 }

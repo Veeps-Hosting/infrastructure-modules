@@ -14,7 +14,7 @@ module "puppetmaster" {
   allow_ssh_from_security_group         = true
 
   ## This method is copied from the 'jenkins' module but Errors out
-  allow_ssh_from_security_group_id      = ["${data.terraform_remote_state.bastion_host.bastion-host_security_group_id}"]
+  allow_ssh_from_security_group_id      = ["${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"]
 
   ## This method should work according to https://www.terraform.io/docs/configuration/interpolation.html#outputs-from-a-module
   #allow_ssh_from_security_group_id      = "${module.bastion.bastion_host_security_group_id}"
@@ -42,4 +42,12 @@ resource "aws_security_group_rule" "puppet" {
   protocol = "tcp"
   cidr_blocks = ["10.0.0.0/8","172.31.0.0/16"]
   security_group_id = "${module.puppetmaster.security_group_id}"
+}
+data "terraform_remote_state" "bastion_host" {
+  backend = "s3"
+  config {
+    region = "${var.terraform_state_aws_region}"
+    bucket = "${var.terraform_state_s3_bucket}"
+    key    = "${var.aws_region}/${var.vpc_name}/bastion-host/terraform.tfstate"
+  }
 }

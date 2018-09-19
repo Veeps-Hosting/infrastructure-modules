@@ -12,8 +12,6 @@ data "template_file" "user_data" {
 module "puppetmaster" {
   allow_ssh_from_cidr                   = false
   allow_ssh_from_security_group         = true
-
-  ## This method is copied from the 'jenkins' module but Errors out
   allow_ssh_from_security_group_id      = "${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"
   ami                                   = "${var.ami}"
   attach_eip                            = false
@@ -27,6 +25,12 @@ module "puppetmaster" {
     Role                                = "Puppetmaster"
   }
   vpc_id                                = "${var.vpc_id}"
+}
+module "ssh_grunt_policies" {
+  source = "git::git@github.com:gruntwork-io/module-security.git//modules/iam-policies?ref=HEAD"
+  aws_account_id = "${var.aws_account_id}"
+  iam_policy_should_require_mfa   = false
+  trust_policy_should_require_mfa = false
 }
 resource "aws_security_group_rule" "puppet" {
   type = "ingress"

@@ -12,6 +12,7 @@ data "template_file" "user_data" {
 module "puppetmaster" {
   #allow_inbound_ssh_from_security_group = ["${data.terraform_remote_state.bastion-host.bastion_host_security_group_id}"]
   ami                                   = "${var.ami}"
+  attach_eip                            = false
   instance_type                         = "${var.instance_type}"
   name                                  = "${var.name}"
   keypair_name                          = "${var.keypair_name}"

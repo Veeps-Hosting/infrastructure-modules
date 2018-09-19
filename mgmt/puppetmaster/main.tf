@@ -10,12 +10,12 @@ data "template_file" "user_data" {
   template = "${file("${path.module}/user-data/user-data.txt")}"
 }
 module "puppetmaster" {
+  source                                = "git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=v0.5.0"
   allow_inbound_ssh_from_security_group = ["${data.terraform_remote_state.bastion-host.bastion_host_security_group_id}"]
   ami                                   = "${var.ami}"
   instance_type                         = "${var.instance_type}"
   name                                  = "${var.name}"
   keypair_name                          = "${var.keypair_name}"
-  source                                = "git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=v0.5.0"
   subnet_id                             = "${var.subnet_id}"
   user_data                             = "${data.template_file.user_data.rendered}"
   tags                                  = {

@@ -10,7 +10,7 @@ data "template_file" "user_data" {
   template = "${file("${path.module}/user-data/user-data.txt")}"
 }
 module "puppetmaster" {
-  allow_ssh_from_security_group_ids = ["${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"]
+  allow_ssh_from_security_group_ids = ["${data.terraform_remote_state.bastion-host.bastion_host_security_group_id}"]
   ami                               = "${var.ami}"
   instance_type                     = "${var.instance_type}"
   name                              = "${var.name}"

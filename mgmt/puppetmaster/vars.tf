@@ -19,6 +19,8 @@ variable "aws_account_id" {
   description = "The ID of the AWS Account in which to create resources."
 }
 
+variable bastion_host_security_group_id {}
+
 variable "instance_type" {
   description = "Instance type, recommended minimum t2.medium"
 }

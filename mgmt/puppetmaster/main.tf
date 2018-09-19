@@ -14,14 +14,7 @@ module "puppetmaster" {
   allow_ssh_from_security_group         = true
 
   ## This method is copied from the 'jenkins' module but Errors out
-  allow_ssh_from_security_group_id      = ["${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"]
-
-  ## This method should work according to https://www.terraform.io/docs/configuration/interpolation.html#outputs-from-a-module
-  #allow_ssh_from_security_group_id      = "${module.bastion.bastion_host_security_group_id}"
-
-  ## Manually interpolating the current value works, but this needs to be dynamic
-  #allow_ssh_from_security_group_id      = "sg-0f62a35785364a066"
-
+  allow_ssh_from_security_group_id      = "${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"
   ami                                   = "${var.ami}"
   attach_eip                            = false
   instance_type                         = "${var.instance_type}"

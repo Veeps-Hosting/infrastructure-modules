@@ -7,8 +7,9 @@ terraform {
   required_version = "= 0.11.8"
 }
 data "template_file" "user_data" {
-  template = "${file("${path.module}/user-data/user-data")}"
+  template = "${file("${path.module}/user-data")}"
 }
+content = "${data.template_file.bootstrap.rendered}"
 module "puppetmaster" {
   ami           = "${var.ami}"
   instance_type = "${var.instance_type}"

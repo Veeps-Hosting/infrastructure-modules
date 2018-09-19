@@ -37,7 +37,15 @@ resource "aws_iam_role_policy" "ssh_grunt_permissions" {
   policy = "${module.ssh_grunt_policies.ssh_grunt_permissions}"
   role   = "${module.puppetmaster.iam_role_id}"
 }
-
+module "cloudwatch_metrics" {
+  source      = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/metrics/cloudwatch-custom-metrics-iam-policy?ref=HEAD"
+  name_prefix = "${var.name}"
+}
+resource "aws_iam_policy_attachment" "attach_cloudwatch_metrics_policy" {
+  name       = "attach-cloudwatch-metrics-policy"
+  roles      = ["${module.puppetmaster.iam_role_id}"]
+  policy_arn = "${module.cloudwatch_metrics.cloudwatch_metrics_policy_arn}"
+}
 resource "aws_security_group_rule" "puppet" {
   type = "ingress"
   from_port = 8140

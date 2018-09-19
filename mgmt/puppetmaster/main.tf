@@ -35,6 +35,8 @@ module "ssh_grunt_policies" {
 resource "aws_iam_role_policy" "ssh_grunt_permissions" {
   name   = "ssh-grunt-permissions"
   policy = "${module.ssh_grunt_policies.ssh_grunt_permissions}"
+  role   = "${module.puppetmaster.puppetmaster_iam_role_id}"
+
 }
 
 resource "aws_security_group_rule" "puppet" {

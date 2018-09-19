@@ -11,7 +11,7 @@ data "template_file" "user_data" {
 }
 module "puppetmaster" {
   #allow_ssh_from_security_group_id      = "${var.bastion_host_security_group_id}"
-  allow_ssh_from_cidr_list              = false
+  allow_ssh_from_cidr_list              = []
   allow_ssh_from_security_group_id      = "sg-0f62a35785364a066"
   ami                                   = "${var.ami}"
   attach_eip                            = false

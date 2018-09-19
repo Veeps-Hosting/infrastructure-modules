@@ -31,8 +31,20 @@ variable "vpc_id" {
   description = "The ID of the VPC in which to run the puppet master. If using the standard Gruntwork VPC setup, this should be the id of the Mgmt VPC."
 }
 
+variable "vpc_name" {
+  description = "The name of the VPC in which to deploy Jenkins"
+}
+
 variable "subnet_id" {
   description = "The id of the subnet in which to run the puppet master. If using the standard Gruntwork VPC setup, this should be the id of a public subnet in the Mgmt VPC."
+}
+
+variable "terraform_state_aws_region" {
+  description = "The AWS region of the S3 bucket used to store Terraform remote state"
+}
+
+variable "terraform_state_s3_bucket" {
+  description = "The name of the S3 bucket used to store Terraform remote state"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

@@ -12,7 +12,7 @@ data "template_file" "user_data" {
 module "puppetmaster" {
   allow_ssh_from_cidr                   = false
   allow_ssh_from_security_group         = true
-  allow_ssh_from_security_group_id      = ["${data.terraform_remote_state.bastion_host.bastion_host_security_group_id}"]
+  allow_ssh_from_security_group_id      = ["${data.terraform_remote_state.bastion.bastion_host_security_group_id}"]
   #allow_ssh_from_security_group_id      = "${module.bastion.bastion_host_security_group_id}"
   #allow_ssh_from_security_group_id      = "sg-0f62a35785364a066"
   ami                                   = "${var.ami}"

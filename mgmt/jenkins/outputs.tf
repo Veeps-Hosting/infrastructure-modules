@@ -17,7 +17,3 @@ output "jenkins_iam_role_arn" {
 output "jenkins_domain_name" {
   value = "${module.jenkins.jenkins_domain_name}"
 }
-
-output "aws_account_id" {
-  value = "${module.jenkins.aws_account_id}"
-}

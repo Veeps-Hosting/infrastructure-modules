@@ -32,11 +32,10 @@ module "ssh_grunt_policies" {
   iam_policy_should_require_mfa   = false
   trust_policy_should_require_mfa = false
 }
-resource "aws_iam_role_policy" "ssh_grunt_permissions" {
-  name   = "ssh-grunt-permissions"
-  role   = "${module.puppetmaster.aws_iam_role.instance}"
-  policy = "${module.ssh_grunt_policies.ssh_grunt_permissions}"
-}
+#resource "aws_iam_role_policy" "ssh_grunt_permissions" {
+#  name   = "ssh-grunt-permissions"
+#  role   = "${module.puppetmaster.aws_iam_role.instance}"
+#}
 
 resource "aws_security_group_rule" "puppet" {
   type = "ingress"

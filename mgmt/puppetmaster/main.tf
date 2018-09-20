@@ -25,6 +25,9 @@ module "puppetmaster" {
   instance_type                         = "${var.instance_type}"
   name                                  = "${var.name}"
   keypair_name                          = "${var.keypair_name}"
+  root_block_device {
+    volume_size                         = "${var.root_volume_size}"
+  }
   source                                = "git::git@github.com:gruntwork-io/module-server.git//modules/single-server?ref=HEAD"
   subnet_id                             = "${var.subnet_id}"
   user_data                             = "${data.template_file.user_data.rendered}"

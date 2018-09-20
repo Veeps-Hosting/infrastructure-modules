@@ -11,16 +11,12 @@
 # These variables are expected to be passed in by the operator
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "aws_region" {
-  description = "The AWS region in which all resources will be created"
-}
-
 variable "aws_account_id" {
   description = "The ID of the AWS Account in which to create resources."
 }
 
-variable "instance_type" {
-  description = "Instance type, recommended minimum t2.medium"
+variable "aws_region" {
+  description = "The AWS region in which all resources will be created"
 }
 
 variable "backup_job_metric_namespace" {
@@ -40,21 +36,20 @@ variable "backup_schedule_expression" {
 
 variable "backup_job_alarm_period" {
   description = "How often, in seconds, the backup job is expected to run. This is the same as var.backup_schedule_expression, but unfortunately, Terraform offers no way to convert rate expressions to seconds. We add a CloudWatch alarm that triggers if the value of var.backup_job_metric_name and var.backup_job_metric_namespace isn't updated within this time period, as that indicates the backup failed to run."
+  default     = 86400
+}
 
-  # One day in seconds
-  default = 86400
+variable "instance_type" {
+  description = "Instance type, recommended minimum t2.medium"
 }
 
 variable "keypair_name" {
   description = "The AWS EC2 Keypair name for root access to the puppet master."
 }
 
-variable "vpc_id" {
-  description = "The ID of the VPC in which to run the puppet master. If using the standard Gruntwork VPC setup, this should be the id of the Mgmt VPC."
-}
-
-variable "vpc_name" {
-  description = "The name of the VPC in which to deploy Puppetmaster"
+variable "root_volume_size" {
+  Description = "The default volume size in gigabytes"
+  default     = 60
 }
 
 variable "subnet_id" {
@@ -69,18 +64,26 @@ variable "terraform_state_s3_bucket" {
   description = "The name of the S3 bucket used to store Terraform remote state"
 }
 
+variable "vpc_id" {
+  description = "The ID of the VPC in which to run the puppet master. If using the standard Gruntwork VPC setup, this should be the id of the Mgmt VPC."
+}
+
+variable "vpc_name" {
+  description = "The name of the VPC in which to deploy Puppetmaster"
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # DEFINE CONSTANTS
 # Generally, these values won't need to be changed.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "name" {
-  description = "The name of the puppetmaster"
-  default = "puppet"
-}
-
 variable "ami" {
   description = "The ID of the AMI to run on the puppet master Instance."
   # Ubuntu Server 18.04 LTS (HVM), SSD Volume Type in ap-southeast-2
   default = "ami-07a3bd4944eb120a0"
+}
+
+variable "name" {
+  description = "The name of the puppetmaster"
+  default     = "puppet"
 }

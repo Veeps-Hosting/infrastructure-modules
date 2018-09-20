@@ -94,6 +94,28 @@ resource "aws_iam_policy_attachment" "attach_cloudwatch_log_aggregation_policy" 
   policy_arn = "${module.cloudwatch_log_aggregation.cloudwatch_log_aggregation_policy_arn}"
 }
 
+# Configure CloudWatch Alarms in case CPU, Memory or Disk usage get too high
+module "high_cpu_usage_alarms" {
+  source               = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/alarms/ec2-cpu-alarms?ref=HEAD"
+  instance_ids         = ["${module.puppetmaster.id}"]
+  instance_count       = 1
+  alarm_sns_topic_arns = ["${data.terraform_remote_state.sns_region.arn}"]
+}
+module "high_memory_usage_alarms" {
+  source               = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/alarms/ec2-memory-alarms?ref=HEAD"
+  instance_ids         = ["${module.puppetmaster.id}"]
+  instance_count       = 1
+  alarm_sns_topic_arns = ["${data.terraform_remote_state.sns_region.arn}"]
+}
+module "high_disk_usage_alarms" {
+  source               = "git::git@github.com:gruntwork-io/module-aws-monitoring.git//modules/alarms/ec2-disk-alarms?ref=HEAD"
+  instance_ids         = ["${module.puppetmaster.id}"]
+  instance_count       = 1
+  file_system          = "/dev/xvda1"
+  mount_path           = "/"
+  alarm_sns_topic_arns = ["${data.terraform_remote_state.sns_region.arn}"]
+}
+
 # Configure daily EC2 backups via Lambda with 2 week retention
 module "puppetmaster_backup" {
   source                         = "git::git@github.com:gruntwork-io/module-ci.git//modules/ec2-backup?ref=HEAD"

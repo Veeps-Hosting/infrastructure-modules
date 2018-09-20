@@ -152,7 +152,6 @@ resource "aws_security_group_rule" "puppet" {
 # Configure IAM to describe / read tags
 resource "aws_iam_policy" "ec2_describetags" {
   name       = "${var.name}-ec2-describetags"
-  roles      = ["${module.puppetmaster.iam_role_id}"]
   policy     = "${data.aws_iam_policy_document.ec2_describetags.json}"
 }
 data "aws_iam_policy_document" "ec2_describetags" {
@@ -163,6 +162,11 @@ data "aws_iam_policy_document" "ec2_describetags" {
     ]
     resources = ["*"]
   }
+}
+resource "aws_iam_policy_attachment" "attach_ec2_describetags" {
+  name       = "attach-ec2-describetags"
+  roles      = ["${module.puppetmaster.iam_role_id}"]
+  policy_arn = "${aws_iam_policy.ec2_describetags.arn}"
 }
 
 ## Create a DNS entry for the server

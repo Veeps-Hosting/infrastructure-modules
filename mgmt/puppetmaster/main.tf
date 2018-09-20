@@ -13,6 +13,20 @@ terraform {
 # Specify "Cloud-init" or "User-data" to Bootstrap the instance
 data "template_file" "user_data" {
   template = "${file("${path.module}/user-data/user-data.txt")}"
+  vars {
+    vpc_name       = "${data.terraform_remote_state.vpc.vpc_name}"
+    log_group_name = "${var.name}"
+  }
+}
+
+# Data source used above to determine vpc
+data "terraform_remote_state" "vpc" {
+  backend = "s3"
+  config {
+    region = "${var.terraform_state_aws_region}"
+    bucket = "${var.terraform_state_s3_bucket}"
+    key    = "${var.aws_region}/${var.vpc_name}/vpc/terraform.tfstate"
+  }
 }
 
 # Configure the Server

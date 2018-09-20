@@ -148,3 +148,12 @@ resource "aws_security_group_rule" "puppet" {
   cidr_blocks       = ["10.0.0.0/8","172.31.0.0/16"]
   security_group_id = "${module.puppetmaster.security_group_id}"
 }
+
+## Create a DNS entry for the server
+#resource "aws_route53_record" "puppet" {
+#  zone_id = ? Needs to be pushed via custom dhcp option set
+#  name    = "puppet"
+#  type    = "A"
+#  ttl     = "300"
+#  records = ["${module.puppetmaster.private_ip}"]
+#}

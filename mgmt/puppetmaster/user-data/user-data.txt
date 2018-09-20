@@ -56,6 +56,7 @@ runcmd:
  - 'echo "Domains=`hostname -d`" >> /etc/systemd/resolved.conf'
  - 'rm -fr /etc/puppetlabs/code/environments/production'
  - 'GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" git clone ssh://git-codecommit.ap-southeast-2.amazonaws.com/v1/repos/veepshosting_propertyiq_iac /etc/puppetlabs/code/environments/production'
+ - 'puppet apply -e "include ::ec2tagfacts"'
  - 'puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'
  - 'puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'
  - '/usr/bin/unattended-upgrades -d'

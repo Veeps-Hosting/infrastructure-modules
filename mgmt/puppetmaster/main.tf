@@ -149,6 +149,21 @@ resource "aws_security_group_rule" "puppet" {
   security_group_id = "${module.puppetmaster.security_group_id}"
 }
 
+# Configure IAM to describe / read tags
+resource "aws_iam_policy" "ec2_describetags" {
+  name   = "${var.name}-ec2-describetags"
+  policy = "${data.aws_iam_policy_document.ec2_describetags.json}"
+}
+data "aws_iam_policy_document" "ec2_describetags" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ec2:DescribeTags,
+    ]
+    resources = ["*"]
+  }
+}
+
 ## Create a DNS entry for the server
 #resource "aws_route53_record" "puppet" {
 #  zone_id = ? Needs to be pushed via custom dhcp option set

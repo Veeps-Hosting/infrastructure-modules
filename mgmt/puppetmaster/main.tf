@@ -44,7 +44,7 @@ module "puppetmaster" {
   subnet_id                             = "${var.subnet_id}"
   user_data                             = "${data.template_file.user_data.rendered}"
   tags                                  = {
-    Role                                = "Puppetmaster"
+    role                                = "puppetmaster"
   }
   vpc_id                                = "${var.vpc_id}"
 }

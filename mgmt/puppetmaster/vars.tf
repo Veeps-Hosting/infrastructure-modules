@@ -48,7 +48,7 @@ variable "keypair_name" {
 }
 
 variable "root_volume_size" {
-  Description = "The default volume size in gigabytes"
+  description = "The default volume size in gigabytes"
   default     = 60
 }
 

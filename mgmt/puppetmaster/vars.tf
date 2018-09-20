@@ -79,8 +79,11 @@ variable "vpc_name" {
 
 variable "ami" {
   description = "The ID of the AMI to run on the puppet master Instance."
-  # Ubuntu Server 18.04 LTS (HVM), SSD Volume Type in ap-southeast-2
-  default = "ami-07a3bd4944eb120a0"
+  ## Ubuntu Server 18.04 LTS (HVM), SSD Volume Type in ap-southeast-2
+  #default = "ami-07a3bd4944eb120a0"
+
+  ## Generated using Packer
+  default = "ami-0c9474327b7d67441"
 }
 
 variable "name" {

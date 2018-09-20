@@ -89,7 +89,7 @@ module "puppetmaster_backup" {
   require_at_least               = 15
   cloudwatch_metric_name         = "${var.backup_job_metric_namespace}"
   cloudwatch_metric_namespace    = "${var.backup_job_metric_name}"
-  alarm_sns_topic_arns           = "${data.terraform_remote_state.sns_region.arn}"
+  alarm_sns_topic_arns           = ["${data.terraform_remote_state.sns_region.arn}"]
 }
 
 # Configure data source used for above SNS Alarm Topic ARNs

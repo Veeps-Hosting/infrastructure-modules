@@ -12,7 +12,8 @@ terraform {
 
 # Specify "Cloud-init" or "User-data" to Bootstrap the instance
 data "template_file" "user_data" {
-  template = "${file("${path.module}/user-data/user-data.txt")}"
+  #template = "${file("${path.module}/user-data/user-data.txt")}"
+  template = "${file("${path.module}/user-data/user-data.sh")}"
   vars {
     vpc_name       = "${data.terraform_remote_state.vpc.vpc_name}"
     log_group_name = "${var.name}"

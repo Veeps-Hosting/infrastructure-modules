@@ -151,8 +151,9 @@ resource "aws_security_group_rule" "puppet" {
 
 # Configure IAM to describe / read tags
 resource "aws_iam_policy" "ec2_describetags" {
-  name   = "${var.name}-ec2-describetags"
-  policy = "${data.aws_iam_policy_document.ec2_describetags.json}"
+  name       = "${var.name}-ec2-describetags"
+  roles      = ["${module.puppetmaster.iam_role_id}"]
+  policy     = "${data.aws_iam_policy_document.ec2_describetags.json}"
 }
 data "aws_iam_policy_document" "ec2_describetags" {
   statement {

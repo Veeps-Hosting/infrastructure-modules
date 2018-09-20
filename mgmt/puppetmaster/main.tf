@@ -158,7 +158,7 @@ data "aws_iam_policy_document" "ec2_describetags" {
   statement {
     effect = "Allow"
     actions = [
-      "ec2:DescribeTags,
+      "ec2:DescribeTags"
     ]
     resources = ["*"]
   }
